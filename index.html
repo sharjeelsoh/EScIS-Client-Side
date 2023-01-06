@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sharjeel's Test</title>
+
+    <style>
+        ul {
+            list-style: none;
+        }
+        li {
+            padding: 10px;
+        }
+        .list-item {
+            border: 1px solid black;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: #f4f4f4;
+            margin: 20% auto;
+            padding: 20px;
+            width: 70%;
+            box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        .closeBtn {
+            color: #ccc;
+            float: right;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        .closeBtn:hover {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Sharjeel's Coding Test</h1>
+    <ul id="listing">
+    </ul>
+
+
+    <div id="simpleModal" class="modal">
+        <div class="modal-content">
+            <span class="closeBtn" onclick="closePopup()">&times;</span>
+            <h2 id="modalHeading"></h2>
+            <ul id="standards-listing">
+            </ul>
+        </div>
+    </div>
+
+    
+    <!-- JavaScript -->
+    <script>
+
+        // Popup
+        let modal = document.getElementById('simpleModal');
+        let closeBtn = document.getElementById('closeBtn');
+        let modalHeading = document.getElementById('modalHeading');
+
+        function displayPopup(prop){
+            modal.style.display = 'block';
+            let actionLevelSource = prop.childNodes[1].childNodes[1].textContent;
+            modalHeading.textContent = actionLevelSource;
+
+            // Second API 
+            const url = `https://staging.esdat.net/EnvironmentalStandards/GetGlobalEnvironmentalStandards?actionLevelSource=${actionLevelSource}`;
+            getStandards(url);
+        }
+
+        async function getStandards(url){
+            const result = await fetch(url);
+            result.json()
+            .then(json => {
+                //console.log(json);
+                json.forEach(entry => {
+                    const markup = 
+                `<li class-"list-item">
+                    <div>
+                        <p>ActionLevelDisplayText: ${entry.ActionLevelDisplayText}</p>
+                        <p>Chem Code: ${entry.ChemCode}</p>
+                        <p>Chem Name: ${entry.ChemName}</p>
+                    </div>
+                </li>`
+                document.getElementById('standards-listing').insertAdjacentHTML('beforeend', markup);
+                });
+            })
+        }
+
+        function closePopup(){
+            modal.style.display = 'none';
+        }
+
+        // API 
+
+        const url = "https://staging.esdat.net/EnvironmentalStandards/GetAllGlobalActionLevelSources";
+        async function getActionLevelSources(){
+            const result = await fetch(url);
+            result.json()
+            .then(json => {
+                //console.log(json);
+                json.forEach(entry => {
+
+                    const markup = 
+                    `<li class="list-item" onclick="displayPopup(this)">
+                        <div>
+                            <h4>${entry.ActionLevelSource}</h4>
+                            <p>${entry.Group.Name}</p>
+                        </div>
+                    </li>`
+                    document.getElementById('listing').insertAdjacentHTML('beforeend', markup);
+                });
+            })
+        }
+        getActionLevelSources();
+    </script>
+</body>
+</html>
