@@ -11,11 +11,19 @@
             list-style: none;
         }
         li {
-            padding: 11px;
+            padding: 10px;
         }
         .list-item {
             border: 1px solid black;
             cursor: pointer;
+        }
+        .table-header {
+            text-align: left;
+            padding: 10px;
+        }
+        td {
+            padding: 10px;
+            border: 1px solid black;
         }
         .modal {
             display: none;
@@ -57,8 +65,14 @@
         <div class="modal-content">
             <span class="closeBtn" onclick="closePopup()">&times;</span>
             <h2 id="modalHeading"></h2>
-            <ul id="standards-listing">
-            </ul>
+            <table>
+                <tr class="table-header">
+                    <th>ChemCode</th>
+                    <th>ChemName</th>
+                    <th>ActionLevelDisplayText</th>
+                </tr>
+                <tbody class="table-data" id="standardsTable"></tbody>
+            </table>
         </div>
     </div>
 
@@ -70,6 +84,7 @@
         let modal = document.getElementById('simpleModal');
         let closeBtn = document.getElementById('closeBtn');
         let modalHeading = document.getElementById('modalHeading');
+        let standardsTable = document.getElementById('standardsTable')
 
         function displayPopup(prop){
             modal.style.display = 'block';
@@ -85,18 +100,15 @@
             const result = await fetch(url);
             result.json()
             .then(json => {
-                //console.log(json);
                 json.forEach(entry => {
                     const markup = 
-                `<li class-"list-item">
-                    <div>
-                        <p>ActionLevelDisplayText: ${entry.ActionLevelDisplayText}</p>
-                        <p>Chem Code: ${entry.ChemCode}</p>
-                        <p>Chem Name: ${entry.ChemName}</p>
-                    </div>
-                </li>`
-                document.getElementById('standards-listing').insertAdjacentHTML('beforeend', markup);
-                });
+                    `<tr>
+                        <td>${entry.ChemCode}</td>
+                        <td>${entry.ChemName}</td>
+                        <td>${entry.ActionLevelDisplayText}</td>    
+                    </tr>`
+                    standardsTable.insertAdjacentHTML('beforeend', markup)
+                })
             })
         }
 
