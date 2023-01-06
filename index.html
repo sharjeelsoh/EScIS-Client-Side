@@ -100,6 +100,10 @@
             const result = await fetch(url);
             result.json()
             .then(json => {
+                // Sorting algorithm
+                json.sort(function(a, b) {
+                    return a.ChemName.toString().localeCompare(b.ChemName.toString(), 'en', {numeric: true})
+                })
                 json.forEach(entry => {
                     const markup = 
                     `<tr>
