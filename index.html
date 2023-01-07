@@ -4,92 +4,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="stylesheet.css">
     <title>Sharjeel's Test</title>
-
-    <!-- BASIC STYLING -->
-    <style>
-        body {
-            font-family: "Times New Roman", Times, serif;
-        }
-        ul {
-            list-style: none;
-        }
-        li {
-            padding: 10px;
-        }
-        p, h4 {
-            padding: 0;
-            margin: 0;
-        }
-        .list-item {
-            border: 1px solid black;
-            cursor: pointer;
-        }
-        .table-header {
-            text-align: left;
-            padding: 10px;
-        }
-        td {
-            padding: 10px;
-            border: 1px solid black;
-        }
-        .popup{
-            position: fixed;
-            display: flex;
-            visibility: hidden;
-            align-items: center;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            padding: 20px;
-            overflow-y: hidden;
-            z-index: 10;
-            opacity: 20%;
-            border: 1px solid black;
-        }
-        .popup-content {
-            width: 50%;
-            height: 70vh;
-            margin: auto;
-            overflow-y: hidden;
-            background-color: white;
-            box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
-        }
-        .popup-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 3vh;
-            background-color: silver;
-            padding: 10px;
-        }
-        .popup-body {
-            display: flex;
-            justify-content: center;
-            color: black;
-            overflow-y: auto;
-            padding: 5px;
-            height: calc(67vh - 20px - 10px);
-        }
-        .open-popup {
-            opacity: 100%;
-            visibility: visible;
-        }
-        .closeBtn {
-            font-size: 30px;
-            cursor: pointer;
-        }
-        .closeBtn:hover {
-            color: white;
-        }
-    </style>
 </head>
 <body>
-
     <h2>Action Level Sources & their Environmental Standards</h2>
-    <ul id="listing">
-    </ul>
+    <p class="tag-line">ps: you should totally hire sharjeel :D</p>
+    <!-- Action Level Sources list -->
+    <div class="main-container">
+        <ul class="main-list" id="listing">
+        </ul>
+    </div>
 
     <!-- Popup -->
     <div class="popup" id="project-popup">
@@ -103,6 +28,7 @@
 
             <!-- Body -->
             <div class="popup-body" id="popup-body">
+                <!-- Environmental Standards Table -->
                 <table>
                     <tr class="table-header">
                         <th>ChemCode</th>
@@ -116,116 +42,8 @@
         </div>
     </div>
 
-    
     <!-- JavaScript -->
-    <script>
+    <script src="script.js"></script>
 
-        // Variables
-        let popup = document.getElementById('project-popup');
-        let popupBody = document.getElementById('popup-body');
-        let closeBtn = document.getElementById('closeBtn');
-        let popupHeading = document.getElementById('popup-heading');
-        let standardsTable = document.getElementById('standardsTable')
-
-        // Fucntion Calls
-        getActionLevelSources();
-
-        // --------------------------------------------------------------------------------------------- //
-
-        // Function: DisplayPopup(props)
-        // Purpose:  Displays the popup, takes Action Level Source Name as an argument, 
-        //           and shows Environmental Standards of in a separate modal
-
-        function displayPopup(prop){
-            popup.classList.add("open-popup");
-            document.body.style.overflow = "hidden";
-            
-            let actionLevelSource = prop.childNodes[1].childNodes[1].textContent;
-            popupHeading.textContent = actionLevelSource;
-            
-            // Using encodeURIComponent to replace special characters in Action level Source name when making a request
-            const url = `https://staging.esdat.net/EnvironmentalStandards/GetGlobalEnvironmentalStandards?actionLevelSource=${encodeURIComponent(actionLevelSource)}`;
-            getStandards(url);
-        }
-
-        // --------------------------------------------------------------------------------------------- //
-
-        // Function: getStandards(url)
-        // Purpose:  Generates Environmental Standards in a table format by making an API call, 
-        //           taking url as an input, and sorting them by ChemName
-
-        async function getStandards(url){
-            const result = await fetch(url);
-            result.json()
-            .then(json => {
-                
-                // Sorting algorithm
-                json.sort(function(a, b) {
-                    return a.ChemName.toString().localeCompare(b.ChemName.toString(), 'en', {numeric: true})
-                })
-
-                // Creates a Table row for each entry
-                json.forEach(entry => {
-                    const markup = 
-                    `<tr>
-                        <td>${entry.ChemCode}</td>
-                        <td>${entry.ChemName}</td>
-                        <td>${entry.ActionLevelDisplayText}</td>    
-                    </tr>`
-                    standardsTable.insertAdjacentHTML('beforeend', markup)
-                })
-            })
-        }
-        
-        // --------------------------------------------------------------------------------------------- //
-
-        // Function: closePopup()
-        // Purpose:  Hides the modal
-
-        function closePopup(){
-            popup.classList.remove("open-popup");
-            document.body.style.overflow = "auto";
-            standardsTable.innerHTML = "";
-        }
-
-        // --------------------------------------------------------------------------------------------- //
-
-        // Function: getActionLevelSources()
-        // Purpose:  Generates an initial listing of Action Level Sources by making an API call
-        //           Displaying the hierarchical group and Action Level Source Text
-
-        async function getActionLevelSources(){
-            const url = "https://staging.esdat.net/EnvironmentalStandards/GetAllGlobalActionLevelSources";
-            const result = await fetch(url);
-            result.json()
-            .then(json => {
-                json.forEach(entry => {
-
-                    // Creates a Group & Parent Group Name in hierarchical format
-                    let groupName = entry.Group.Name;
-                    let parentGroupName = "";
-                    if (entry.Group.ParentGroup != null ) {
-                        parentGroupName = entry.Group.ParentGroup.Name;
-                        if (entry.Group.ParentGroup.ParentGroup != null){
-                            parentGroupName = entry.Group.ParentGroup.ParentGroup.Name + " > "+ parentGroupName;
-                        }
-                    }
-
-                    // Creates a list item for each entry
-                    const markup = 
-                    `<li class="list-item" onclick="displayPopup(this)">
-                        <div>
-                            <h4>${entry.ActionLevelSource}</h4>
-                            <p>${parentGroupName} > ${groupName}</p>
-                        </div>
-                    </li>`
-                    document.getElementById('listing').insertAdjacentHTML('beforeend', markup);
-                });
-            })
-        }
-
-        // --------------------------------------------------------------------------------------------- //
-
-    </script>
 </body>
 </html>
