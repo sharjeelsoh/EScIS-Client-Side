@@ -80,22 +80,22 @@
     <!-- JavaScript -->
     <script>
 
-        // Popup
+        // Variables
         let modal = document.getElementById('simpleModal');
         let closeBtn = document.getElementById('closeBtn');
         let modalHeading = document.getElementById('modalHeading');
         let standardsTable = document.getElementById('standardsTable')
 
+        // Function: 
         function displayPopup(prop){
             modal.style.display = 'block';
             let actionLevelSource = prop.childNodes[1].childNodes[1].textContent;
             modalHeading.textContent = actionLevelSource;
-
-            // Second API 
             const url = `https://staging.esdat.net/EnvironmentalStandards/GetGlobalEnvironmentalStandards?actionLevelSource=${actionLevelSource}`;
             getStandards(url);
         }
 
+        // Function: 
         async function getStandards(url){
             const result = await fetch(url);
             result.json()
@@ -116,14 +116,14 @@
             })
         }
 
+        // Function: 
         function closePopup(){
             modal.style.display = 'none';
         }
 
-        // API 
-
-        const url = "https://staging.esdat.net/EnvironmentalStandards/GetAllGlobalActionLevelSources";
+        // Function: 
         async function getActionLevelSources(){
+            const url = "https://staging.esdat.net/EnvironmentalStandards/GetAllGlobalActionLevelSources";
             const result = await fetch(url);
             result.json()
             .then(json => {
@@ -141,6 +141,8 @@
                 });
             })
         }
+
+        // Fucntion Calls
         getActionLevelSources();
     </script>
 </body>
