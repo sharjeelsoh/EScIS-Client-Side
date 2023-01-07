@@ -36,9 +36,11 @@ h2 {
     border: 1px solid black;
     cursor: pointer;
 }
+.standards-table {
+    display: block;
+}
 .table-header {
     text-align: left;
-    padding: 10px;
 }
 td {
     padding: 10px;
@@ -76,6 +78,7 @@ td {
     padding: 10px;
 }
 .popup-body {
+    position: relative;
     display: flex;
     justify-content: center;
     color: black;
