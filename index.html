@@ -6,12 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sharjeel's Test</title>
 
+    <!-- BASIC STYLING -->
     <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+        }
         ul {
             list-style: none;
         }
         li {
             padding: 10px;
+        }
+        p, h4 {
+            padding: 0;
+            margin: 0;
         }
         .list-item {
             border: 1px solid black;
@@ -25,54 +33,86 @@
             padding: 10px;
             border: 1px solid black;
         }
-        .modal {
-            display: none;
+        .popup{
             position: fixed;
-            z-index: 1;
-            left: 0;
+            display: flex;
+            visibility: hidden;
+            align-items: center;
             top: 0;
-            height: 100%;
-            width: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-        .modal-content {
-            background-color: #f4f4f4;
-            margin: 20% auto;
+            left: 0;
+            right: 0;
+            bottom: 0;
             padding: 20px;
-            width: 70%;
-            box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2);
+            overflow-y: hidden;
+            z-index: 10;
+            opacity: 20%;
+            border: 1px solid black;
+        }
+        .popup-content {
+            width: 50%;
+            height: 70vh;
+            margin: auto;
+            overflow-y: hidden;
+            background-color: white;
+            box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+        }
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 3vh;
+            background-color: silver;
+            padding: 10px;
+        }
+        .popup-body {
+            display: flex;
+            justify-content: center;
+            color: black;
+            overflow-y: auto;
+            padding: 5px;
+            height: calc(67vh - 20px - 10px);
+        }
+        .open-popup {
+            opacity: 100%;
+            visibility: visible;
         }
         .closeBtn {
-            color: #ccc;
-            float: right;
             font-size: 30px;
             cursor: pointer;
         }
         .closeBtn:hover {
-            color: black;
+            color: white;
         }
     </style>
 </head>
 <body>
 
-    <h1>Sharjeel's Coding Test</h1>
+    <h2>Action Level Sources & their Environmental Standards</h2>
     <ul id="listing">
     </ul>
 
+    <!-- Popup -->
+    <div class="popup" id="project-popup">
+        <div class="popup-content old-border" id="popup-content">
 
-    <div id="simpleModal" class="modal">
-        <div class="modal-content">
-            <span class="closeBtn" onclick="closePopup()">&times;</span>
-            <h2 id="modalHeading"></h2>
-            <table>
-                <tr class="table-header">
-                    <th>ChemCode</th>
-                    <th>ChemName</th>
-                    <th>ActionLevelDisplayText</th>
-                </tr>
-                <tbody class="table-data" id="standardsTable"></tbody>
-            </table>
+            <!-- Top action bar -->
+            <div class="popup-header">
+                <h4 id="popup-heading"></h4>
+                <span class="closeBtn" onclick="closePopup()">&times;</span>
+            </div>
+
+            <!-- Body -->
+            <div class="popup-body" id="popup-body">
+                <table>
+                    <tr class="table-header">
+                        <th>ChemCode</th>
+                        <th>ChemName</th>
+                        <th>ActionLevelDisplayText</th>
+                    </tr>
+                    <tbody class="table-data" id="standardsTable"></tbody>
+                </table>
+            </div>
+
         </div>
     </div>
 
@@ -81,29 +121,50 @@
     <script>
 
         // Variables
-        let modal = document.getElementById('simpleModal');
+        let popup = document.getElementById('project-popup');
+        let popupBody = document.getElementById('popup-body');
         let closeBtn = document.getElementById('closeBtn');
-        let modalHeading = document.getElementById('modalHeading');
+        let popupHeading = document.getElementById('popup-heading');
         let standardsTable = document.getElementById('standardsTable')
 
-        // Function: 
+        // Fucntion Calls
+        getActionLevelSources();
+
+        // --------------------------------------------------------------------------------------------- //
+
+        // Function: DisplayPopup(props)
+        // Purpose:  Displays the popup, takes Action Level Source Name as an argument, 
+        //           and shows Environmental Standards of in a separate modal
+
         function displayPopup(prop){
-            modal.style.display = 'block';
+            popup.classList.add("open-popup");
+            document.body.style.overflow = "hidden";
+            
             let actionLevelSource = prop.childNodes[1].childNodes[1].textContent;
-            modalHeading.textContent = actionLevelSource;
-            const url = `https://staging.esdat.net/EnvironmentalStandards/GetGlobalEnvironmentalStandards?actionLevelSource=${actionLevelSource}`;
+            popupHeading.textContent = actionLevelSource;
+            
+            // Using encodeURIComponent to replace special characters in Action level Source name when making a request
+            const url = `https://staging.esdat.net/EnvironmentalStandards/GetGlobalEnvironmentalStandards?actionLevelSource=${encodeURIComponent(actionLevelSource)}`;
             getStandards(url);
         }
 
-        // Function: 
+        // --------------------------------------------------------------------------------------------- //
+
+        // Function: getStandards(url)
+        // Purpose:  Generates Environmental Standards in a table format by making an API call, 
+        //           taking url as an input, and sorting them by ChemName
+
         async function getStandards(url){
             const result = await fetch(url);
             result.json()
             .then(json => {
+                
                 // Sorting algorithm
                 json.sort(function(a, b) {
                     return a.ChemName.toString().localeCompare(b.ChemName.toString(), 'en', {numeric: true})
                 })
+
+                // Creates a Table row for each entry
                 json.forEach(entry => {
                     const markup = 
                     `<tr>
@@ -115,26 +176,47 @@
                 })
             })
         }
+        
+        // --------------------------------------------------------------------------------------------- //
 
-        // Function: 
+        // Function: closePopup()
+        // Purpose:  Hides the modal
+
         function closePopup(){
-            modal.style.display = 'none';
+            popup.classList.remove("open-popup");
+            document.body.style.overflow = "auto";
+            standardsTable.innerHTML = "";
         }
 
-        // Function: 
+        // --------------------------------------------------------------------------------------------- //
+
+        // Function: getActionLevelSources()
+        // Purpose:  Generates an initial listing of Action Level Sources by making an API call
+        //           Displaying the hierarchical group and Action Level Source Text
+
         async function getActionLevelSources(){
             const url = "https://staging.esdat.net/EnvironmentalStandards/GetAllGlobalActionLevelSources";
             const result = await fetch(url);
             result.json()
             .then(json => {
-                //console.log(json);
                 json.forEach(entry => {
 
+                    // Creates a Group & Parent Group Name in hierarchical format
+                    let groupName = entry.Group.Name;
+                    let parentGroupName = "";
+                    if (entry.Group.ParentGroup != null ) {
+                        parentGroupName = entry.Group.ParentGroup.Name;
+                        if (entry.Group.ParentGroup.ParentGroup != null){
+                            parentGroupName = entry.Group.ParentGroup.ParentGroup.Name + " > "+ parentGroupName;
+                        }
+                    }
+
+                    // Creates a list item for each entry
                     const markup = 
                     `<li class="list-item" onclick="displayPopup(this)">
                         <div>
                             <h4>${entry.ActionLevelSource}</h4>
-                            <p>${entry.Group.Name}</p>
+                            <p>${parentGroupName} > ${groupName}</p>
                         </div>
                     </li>`
                     document.getElementById('listing').insertAdjacentHTML('beforeend', markup);
@@ -142,8 +224,8 @@
             })
         }
 
-        // Fucntion Calls
-        getActionLevelSources();
+        // --------------------------------------------------------------------------------------------- //
+
     </script>
 </body>
 </html>
